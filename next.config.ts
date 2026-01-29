@@ -1,34 +1,40 @@
 import type { NextConfig } from "next";
 import path from "node:path";
+import fs from "node:fs";
 
-// Only include loader if it exists inside project root
-// const LOADER = path.resolve(__dirname, 'src/visual-edits/component-tagger-loader.js');
+// Optional loader — only include if it exists
+const loaderPath = path.resolve(__dirname, 'src/visual-edits/component-tagger-loader.js');
+const LOADER = fs.existsSync(loaderPath) ? loaderPath : undefined;
 
 const nextConfig: NextConfig = {
+  // Image optimization: whitelist only trusted domains
   images: {
     remotePatterns: [
-      { protocol: 'https', hostname: '**' },
-      { protocol: 'http', hostname: '**' },
+      { protocol: 'https', hostname: 'example.com' },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      // Add more trusted domains as needed
     ],
   },
 
-  // Must point to project root
+  // File tracing for serverless deployments (Vercel)
   outputFileTracingRoot: path.resolve(__dirname),
 
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  // TypeScript & ESLint strict checks enabled for production
+  typescript: { ignoreBuildErrors: false },
+  eslint: { ignoreDuringBuilds: false },
 
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  // Turbopack loader (conditionally enabled)
+  turbopack: LOADER
+    ? {
+        rules: {
+          "*.{jsx,tsx}": { loaders: [LOADER] },
+        },
+      }
+    : undefined,
 
-  // Temporarily disable Turbopack loader for Vercel
-  // turbopack: {
-  //   rules: {
-  //     "*.{jsx,tsx}": { loaders: [LOADER] }
-  //   }
-  // }
+  // Optional: other production optimizations
+  reactStrictMode: true,
+  swcMinify: true,
 };
 
 export default nextConfig;
