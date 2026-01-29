@@ -1,10 +1,9 @@
-import type { NextConfig } from "next";
 import path from "node:path";
 
 // Only include loader if it exists inside project root
 // const LOADER = path.resolve(__dirname, 'src/visual-edits/component-tagger-loader.js');
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: '**' },
